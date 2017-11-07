@@ -4,7 +4,7 @@
 #import pandas as pd
 from merge_ts import merge_ts
 from impute import test_impute
-from plots import simple_plot
+from plots import simple_plot, simple_boxplot 
 
 class TimeSeriesObj(dict):
    
@@ -62,6 +62,12 @@ class TimeSeriesObj(dict):
         else:
             if bok: return simple_plot(self[interval], bok, **kwargs)
             else: simple_plot(self[interval], bok, **kwargs)
+    
+    def boxplot(self, interval = 'all'):
+        if interval == 'all':
+            for interval, value in self.items():
+                simple_boxplot(value)
+        else: simple_boxplot(self[interval])
             
    
         
