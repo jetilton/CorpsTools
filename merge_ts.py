@@ -45,6 +45,10 @@ import pandas as pd
             
 
 def get_paths(ts_dict):
+    """
+    Grabs all of the paths that are in a time series object
+    these can be thought of as the column names for all of the interval df's
+    """
     paths_dict = {}     
     for interval,data in ts_dict.items():
         paths = []
@@ -53,14 +57,18 @@ def get_paths(ts_dict):
         paths_dict.update({interval:paths})
     return paths_dict
 
-
-
+    
+     
 def merge_ts(ts1, ts2):
     if not ts1:
         return ts2
     df1_paths = get_paths(ts1)
     for interval, df in ts2.items():
-        df1 = ts1[interval]
+        try:
+            df1 = ts1[interval]
+        except KeyError:
+            ts1[interval] = df
+            continue
         df2 = df
         df1_paths_interval = df1_paths[interval]
         df1_metadata = df1.__dict__['metadata']
@@ -76,4 +84,4 @@ def merge_ts(ts1, ts2):
             else: pass
         df1.metadata = df1_metadata
         ts1[interval] = df1
-        return ts1
+    return ts1
