@@ -50,43 +50,45 @@ def mlib_sp(plot_dict, **kwargs):
         p += 1
 
 
-#def simple_plot(dictionary, bok = False, **kwargs):
-#    plot_dict = {}
-#    for column,value in dictionary['column_data'].items():
-#        
-#        column_name = value['path']
-#        units = value['units']
-#        
-#        x = dictionary['df'][column].index
-#        y = dictionary['df'][column].values
-#        try: 
-#            plot_dict[units].append((column_name,x,y))
-#        except:
-#            plot_dict.update({units:[(column_name,x,y)]})
-#    if bok:
-#       return bok_sp(plot_dict, **kwargs) 
-#    else:
-#       mlib_sp(plot_dict, **kwargs)
-
-
-
-
-
-def simple_plot(tso, bok = False, **kwargs):
+def create_plot_dict(df):
     plot_dict = {}
-    for column,value in tso.__dict__['metadata'].items():
+    for column,value in df.__dict__['metadata'].items():
         
         column_name = value['path']
         units = value['units']
         
-        x = tso[column].index
-        y = tso[column].values
+        x = df[column].index
+        y = df[column].values
         try: 
             plot_dict[units].append((column_name,x,y))
         except:
             plot_dict.update({units:[(column_name,x,y)]})
+    return plot_dict
+
+
+
+def simple_plot(df, bok = False, **kwargs):
+    plot_dict = create_plot_dict(df)
     if bok:
        return bok_sp(plot_dict, **kwargs) 
     else:
        mlib_sp(plot_dict, **kwargs)
+
+
+def simple_boxplot(df,**kwargs):
+    plot_dict = create_plot_dict(df)
+    if kwargs: figsize = kwargs['figsize']
+    else: figsize = (15,10)
+    plt.figure(figsize=figsize )
+    p = 211
+    for unit,values in plot_dict.items():
+        plt.subplot(p)
+        data = [x[2] for x in values]
+        labels = [x[0].split('.')[0] for x in values]
+        y_lab = list(set(x[0].split('.')[1] for x in values))[0] + ' ' +'('+unit+')'
+        plt.ylabel(y_lab)
+        plt.boxplot(data,labels = labels)
+        plt.legend(bbox_to_anchor=(1.04,0), loc=3, borderaxespad=0)
+
+        p += 1
 
