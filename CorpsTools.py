@@ -48,12 +48,17 @@ class CWMSHydro:
         
     def get_ts(self, path, merge = False):
         lb = '&backward=' + self.lookback + 'd'
-        url = '{}{}{}{}{}'.format(self.base_url, 'query=%5B%22', path, self.end_url, lb)
-        new_ts = cwms_read(url)
+        if type(path) == list:
+            new_ts = TimeSeriesObj()
+            for p in path:
+                url = '{}{}{}{}{}'.format(self.base_url, 'query=%5B%22', p, self.end_url, lb)
+                ts = cwms_read(url)
+                new_ts = new_ts.merge(ts)
+        else:
+            url = '{}{}{}{}{}'.format(self.base_url, 'query=%5B%22', path, self.end_url, lb)
+            new_ts = cwms_read(url)
         if merge:
-            try:
-                self.ts.mergs(new_ts) 
-            except AttributeError: self.ts = new_ts
+            self.merge(new_ts) 
         else:return new_ts
             
     def merge(self, new_ts_dict):
@@ -62,7 +67,21 @@ class CWMSHydro:
     def plot(self, interval = 'all', bok = False):
         if bok: return self.ts.plot(interval, bok)
         else: self.ts.plot(interval, bok)
+    
+    def boxplot(self, interval = 'all'):
+        self.ts.boxplot(interval)
             
+    def meta(self, interval = 'all'):
+        if interval == 'all':
+            meta_dict = {}
+            for k,v in self.ts.items():
+                metadata = v.__dict__['metadata']
+                meta_dict.update({k:metadata})
+        else:
+            meta_dict = self.ts[interval].__dict__['metadata']
+        
+        return meta_dict
+                
          
         
         
