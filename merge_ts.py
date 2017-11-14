@@ -61,7 +61,8 @@ def get_paths(ts_dict):
      
 def merge_ts(ts1, ts2):
     if not ts1:
-        return ts2
+        ts1.update(ts2)
+    
     df1_paths = get_paths(ts1)
     for interval, df in ts2.items():
         try:
