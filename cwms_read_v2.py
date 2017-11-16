@@ -12,6 +12,13 @@ def create_url(path,lookback):
     return '{}{}{}{}{}'.format(base_url, 'query=%5B%22', path, end_url, lb)
     
 def cwms_read(path, lookback):
+    """
+    Desc: A function to parse CWMS json data from webservice
+        
+    Params: path (str), example: 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV' 
+            lookback: (int or str) example: 7
+    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    """
     url = create_url(path, lookback)
     r = requests.get(url)
     json_data = json.loads(r.text)
@@ -41,6 +48,13 @@ def cwms_read(path, lookback):
     return df
 
 def merge(df1, df2):
+    """
+    Desc: A function to merge 2 pd df's that contain metadata, metadata is lost 
+          if a dataframe is merged or copied.
+        
+    Params: df1, df2 (pandas.core.frame.DataFrame)
+    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    """
     try:
         meta = df1.__dict__['metadata']
         meta2 = df2.__dict__['metadata']
@@ -54,6 +68,15 @@ def merge(df1, df2):
 
 
 def get_cwms(paths, interval, lookback):
+    """
+    Desc: A function that requests multiple paths from the CWMS webservice. Paths
+          must be the same time interval.
+        
+    Params: paths (str or list of str)
+    
+    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    """
+    
     interval_dict = {
                     '1Hour':'1Hour',
                     'hour': '1Hour',
