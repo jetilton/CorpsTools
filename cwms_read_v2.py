@@ -4,12 +4,6 @@ import requests
 import json
 import pandas as pd
 
-
-def create_url(path,lookback):
-    lb = '&backward=' + str(lookback) + 'd'
-    base_url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?'
-    end_url = r'%22%5D'
-    return '{}{}{}{}{}'.format(base_url, 'query=%5B%22', path, end_url, lb)
     
 def cwms_read(path, lookback):
     """
@@ -19,7 +13,9 @@ def cwms_read(path, lookback):
             lookback: (int or str) example: 7
     Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
     """
-    url = create_url(path, lookback)
+    
+    url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
+    url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
     r = requests.get(url)
     json_data = json.loads(r.text)
    
@@ -98,12 +94,12 @@ def get_cwms(paths, interval, lookback):
     return df
 
 def catalog():
-    url = 'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?catalog=%5B%5D'
+    url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?catalog=%5B%5D'
     r = requests.get(url)
     return json.loads(r.text)
 
 def site_catalog(site):
-    url = 'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?tscatalog=%5B%22SITE%22%5D'
+    url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?tscatalog=%5B%22SITE%22%5D'
     url = url.replace('SITE', site)
     r = requests.get(url)
     return json.loads(r.text)
