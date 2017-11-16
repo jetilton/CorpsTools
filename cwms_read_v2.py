@@ -97,4 +97,13 @@ def get_cwms(paths, interval, lookback):
         df = df.pipe(merge, df2 =cwms_read(path, 100))
     return df
 
+def catalog():
+    url = 'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?catalog=%5B%5D'
+    r = requests.get(url)
+    return json.loads(r.text)
 
+def site_catalog(site):
+    url = 'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?tscatalog=%5B%22SITE%22%5D'
+    url = url.replace('SITE', site)
+    r = requests.get(url)
+    return json.loads(r.text)
