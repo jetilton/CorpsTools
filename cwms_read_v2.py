@@ -7,7 +7,7 @@ import pandas as pd
 
 def create_url(path,lookback):
     lb = '&backward=' + str(lookback) + 'd'
-    base_url = r'http://nww-wmlocal2.nww.usace.army.mil/common/web_service/webexec/getjson?'
+    base_url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?'
     end_url = r'%22%5D'
     return '{}{}{}{}{}'.format(base_url, 'query=%5B%22', path, end_url, lb)
     
@@ -75,4 +75,3 @@ def get_cwms(paths, interval, lookback):
     return df
 
 
-    
