@@ -7,11 +7,39 @@ from time_window_url import time_window_url
 
 def cwms_read(path, **kwargs):
     """
-    Desc: A function to parse CWMS json data from webservice
+    A function to parse CWMS json data from webservice
         
-    Params: path (str), example: 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV' 
-            lookback: (int or str) example: 7
-    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    Positional: 
+        path -- data path for web service (str), example: 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV' 
+    
+    Keyword:
+        
+        The web service can either get a lookback, which is just a number of 
+        days from the current day, or a time window.  Two key word arguments are 
+        needed for a time wondow, start_date, end_date.
+        
+        lookback    --  The number of days from current day to grab data.
+                        (int or str) 
+                        example: 7
+                        
+        start_date  --  The start of a time window (tuple) formatted 
+                        (year, month, day)
+                        example: (2017, 3, 22)
+                        
+        end_date    --  The end of a time window (tuple) formatted 
+                        (year, month, day)
+                        example: (2017, 3, 22)
+                        
+                        
+    Returns:
+        
+        A pandas dataframe with metadata from the webservice is returned.  
+        Metadata is stored in df.__dict__['metadata'], the data is used in 
+        some of the plotting functions.  The metadata is easily lost if a df
+        is copied or transformed in some way.  It may be best to export the 
+        metadata if it is needed.  meta = df.__dict__['metadata']
+        
+        
     """
     try:
         lookback = kwargs['lookback']
@@ -56,8 +84,8 @@ def cwms_read(path, **kwargs):
 
 def merge(df1, df2):
     """
-    Desc: A function to merge 2 pd df's that contain metadata, metadata is lost 
-          if a dataframe is merged or copied.
+    A function to merge 2 pd df's that contain metadata, metadata is lost 
+    if a dataframe is merged or copied.
         
     Params: df1, df2 (pandas.core.frame.DataFrame)
     Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
@@ -76,10 +104,11 @@ def merge(df1, df2):
 
 def get_cwms(paths, interval, **kwargs):
     """
-    Desc: A function that requests multiple paths from the CWMS webservice. Paths
-          must be the same time interval.
+    A function that calls cwms_read on a list to request multiple paths from 
+    the CWMS webservice. Paths must be the same time interval, this is meant to 
+    easily create a time series dataframe of multiple data
         
-    Params: paths (str or list of str)
+    paths (str or list of str)
     
     Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
     """
@@ -106,9 +135,9 @@ def get_cwms(paths, interval, **kwargs):
 
 def catalog():
     """
-    Desc: A function that requests the CWMS catalog.  Returns a large dict and not easy 
-          wade through, it would be easier to go to a dataquery site to find 
-          what you are looking for http://www.nwd-wc.usace.army.mil/dd/common/dataquery/www/
+    A function that requests the CWMS catalog.  Returns a large dict and not easy 
+    wade through, it would be easier to go to a dataquery site to find 
+    what you are looking for http://www.nwd-wc.usace.army.mil/dd/common/dataquery/www/
         
     Params: 
     
