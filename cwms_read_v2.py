@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-# -*- coding: utf-8 -*-
+
 import requests
 import json
 import pandas as pd
+from time_window_url import time_window_url
 
-    
-def cwms_read(path, lookback):
+def cwms_read(path, **kwargs):
     """
     Desc: A function to parse CWMS json data from webservice
         
@@ -13,9 +13,20 @@ def cwms_read(path, lookback):
             lookback: (int or str) example: 7
     Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
     """
+    try:
+        lookback = kwargs['lookback']
+        url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
+        url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
+    except KeyError: 
+        print('No lookback, searching for start_data, end_date')
+        try:
+            start_date, end_date = kwargs['start_date'], kwargs['end_date']
+            try: timezone = kwargs['timezone']
+            except: timezone = 'PST'
+            url = time_window_url(path, start_date, end_date, timezone = timezone)
+        except KeyError:
+            raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
     
-    url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
-    url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
     r = requests.get(url)
     json_data = json.loads(r.text)
    
@@ -63,7 +74,7 @@ def merge(df1, df2):
     
 
 
-def get_cwms(paths, interval, lookback):
+def get_cwms(paths, interval, **kwargs):
     """
     Desc: A function that requests multiple paths from the CWMS webservice. Paths
           must be the same time interval.
@@ -90,16 +101,36 @@ def get_cwms(paths, interval, lookback):
     
     df = pd.DataFrame()
     for path in paths:
-        df = df.pipe(merge, df2 =cwms_read(path, 100))
+        df = df.pipe(merge, df2 =cwms_read(path, **kwargs))
     return df
 
 def catalog():
+    """
+    Desc: A function that requests the CWMS catalog.  Returns a large dict and not easy 
+          wade through, it would be easier to go to a dataquery site to find 
+          what you are looking for http://www.nwd-wc.usace.army.mil/dd/common/dataquery/www/
+        
+    Params: 
+    
+    Returns: dict
+    """
     url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?catalog=%5B%5D'
     r = requests.get(url)
     return json.loads(r.text)
 
 def site_catalog(site):
+    """
+    Desc: Returns a dictionary of CWMS data paths for a particular site
+    
+    Params: site (str)
+    
+    Returns: dict
+    """
     url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?tscatalog=%5B%22SITE%22%5D'
     url = url.replace('SITE', site)
     r = requests.get(url)
     return json.loads(r.text)
+
+ 
+
+
