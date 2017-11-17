@@ -126,7 +126,7 @@ def get_cwms(paths, interval, **kwargs):
     interval = interval_dict[interval]
     if type(paths)!= list: paths = [paths]
     if paths != [path for path in paths if interval in path]:
-        raise ValueError('Not all paths are of the correct interval')
+        raise ValueError('Not all paths are the correct interval')
     
     df = pd.DataFrame()
     for path in paths:
