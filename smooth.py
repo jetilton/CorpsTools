@@ -36,7 +36,7 @@ def decompose(series, frequency, s_window, **kwargs):
     df['observed'] = series.values
     df['trend'] = decomposed[length:2*length]
     df['seasonal'] = decomposed[0:length]
-    df['residual'] = decomposed[2*length:3*length]
+    df['remainder'] = decomposed[2*length:3*length]
     return df
         
         
