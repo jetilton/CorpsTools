@@ -32,13 +32,12 @@ def decompose(series, frequency, s_window, **kwargs):
     s = [x for x in series.values]
     length = len(series)
     s = r.ts(s, frequency=frequency)
-    decomposed = [x for x in r.stl(s, s_window, **kwargs).rx2('time.series')]
+    decomposed = [x for x in r.stl(s, s_window).rx2('time.series')]
     df['observed'] = series.values
     df['trend'] = decomposed[length:2*length]
     df['seasonal'] = decomposed[0:length]
-    df['remainder'] = decomposed[2*length:3*length]
+    df['residuals'] = decomposed[2*length:3*length]
     return df
         
         
-
 
