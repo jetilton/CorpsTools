@@ -16,7 +16,8 @@ def cwms_read(path, **kwargs):
         
         The web service can either get a lookback, which is just a number of 
         days from the current day, or a time window.  Two key word arguments are 
-        needed for a time wondow, start_date, end_date.
+        needed for a time wondow, start_date, end_date.  The Timezone can also
+        be set.
         
         lookback    --  The number of days from current day to grab data.
                         (int or str) 
@@ -29,6 +30,8 @@ def cwms_read(path, **kwargs):
         end_date    --  The end of a time window (tuple) formatted 
                         (year, month, day)
                         example: (2017, 3, 22)
+        
+        timezone    --  "PST", "PDT", "MST", "MDT", "GMT"
                         
                         
     Returns:
