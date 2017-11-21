@@ -135,3 +135,24 @@ def bok_autocor(series):
     return p
 
 
+def bok_line(x,y):
+    p = figure(plot_width=900, plot_height=200, x_axis_type = 'datetime')
+    p.line(x, y, color=colors[0])
+    return p
+    
+def bok_decompose(df):
+    plot_list = []
+    x = df['date']
+    columns = ['observed', 'trend', 'seasonal', 'residuals']
+    for column in columns:
+        y = df[column]
+        p = bok_line(x,y)
+        p.xaxis.axis_label = 'date'
+        p.yaxis.axis_label = column
+        plot_list.append(p)
+    p = df['residuals'].pipe(bok_autocor)
+    p.title.visible = False
+    p.yaxis.axis_label = 'residual autocorrelation'
+    plot_list.append(p)
+    p = gridplot(plot_list, ncols=1, plot_height = 150, plot_width = 800)
+    return p
