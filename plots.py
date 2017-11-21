@@ -17,13 +17,11 @@ def bok_sp(plot_dict, **kwargs):
     if kwargs: figsize = kwargs['figsize']
     else: figsize = (800,400)
     plot_list = []
-    
     plot_width, plot_height = figsize
     i = 0
     for unit,values in plot_dict.items():
         p = figure(plot_width=plot_width, plot_height=plot_height)
         p.xaxis.formatter = DatetimeTickFormatter()
-
         glyph_list = []
         column_list = []
         for data in values:
@@ -56,7 +54,6 @@ def mlib_sp(plot_dict, **kwargs):
 
         p += 1
 
-
 def create_plot_dict(df):
     plot_dict = {}
     for column,value in df.__dict__['metadata'].items():
@@ -72,16 +69,12 @@ def create_plot_dict(df):
             plot_dict.update({units:[(column_name,x,y)]})
     return plot_dict
 
-
-
 def simple_plot(df, bok = False, **kwargs):
     plot_dict = create_plot_dict(df)
     if bok:
        return bok_sp(plot_dict, **kwargs) 
     else:
        mlib_sp(plot_dict, **kwargs)
-
-
 
 def bok_circle(x,y):
     p = figure(plot_width=200, plot_height=200)
@@ -99,7 +92,6 @@ def bok_lag(series, lags):
         plot_list.append(p)
     p = gridplot(plot_list, ncols=4, plot_width=200, plot_height=200)
     return p
-
 
 def acf(series):
     n = len(series)
@@ -133,7 +125,6 @@ def bok_autocor(series):
     p.line(x, z95*-1, line_color = 'grey')
     p.line(x, y, line_width=2)
     return p
-
 
 def bok_line(x,y):
     p = figure(plot_width=900, plot_height=200, x_axis_type = 'datetime')
