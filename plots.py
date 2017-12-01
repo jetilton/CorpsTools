@@ -145,5 +145,5 @@ def bok_decompose(df):
     p.title.visible = False
     p.yaxis.axis_label = 'residual autocorrelation'
     plot_list.append(p)
-    p = gridplot(plot_list, ncols=1, plot_height = 150, plot_width = 800)
+    p = gridplot(plot_list, ncols=1, plot_height = 225, plot_width = 800)
     return p
