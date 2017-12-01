@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import bokeh
-from bokeh.io import show, reset_output
+from bokeh.io import reset_output
 from bokeh.models import Legend, DatetimeTickFormatter
 from bokeh.plotting import figure
 import matplotlib.pyplot as plt
 from bokeh.layouts import gridplot
 from bokeh.palettes import all_palettes
-from math import ceil 
 import numpy as np
 import pandas as pd
 
