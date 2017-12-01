@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import pandas as pdfrom 
+import pandas as pd
 
 from rpy2.robjects import r, pandas2ri
 import numpy as np
@@ -71,4 +71,3 @@ def ets(series):
 
 
 
-series = 
