@@ -122,11 +122,19 @@ def bok_autocor(series):
     p.line(x, z99*-1, line_dash='dashed', line_color='grey')
     p.line(x, z95*-1, line_color = 'grey')
     p.line(x, y, line_width=2)
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    p.outline_line_width  = 0
+    p.outline_line_alpha = 0.0
     return p
 
 def bok_line(x,y):
-    p = figure(plot_width=900, plot_height=200, x_axis_type = 'datetime')
+    p = figure(plot_width=1000, plot_height=300, x_axis_type = 'datetime')
     p.line(x, y, color=colors[0])
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    p.outline_line_width  = 0
+    p.outline_line_alpha = 0.0
     return p
     
 def bok_decompose(df):
