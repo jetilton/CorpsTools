@@ -111,13 +111,19 @@ def bokeh_df_box_data(series, freq = 'year'):
 def bokeh_ts_bx_plt(series, title, freq = 'year'):
     df,ol_df = series.pipe(bokeh_df_box_data, freq = freq) 
     TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
-    p = figure(x_range=[str(x) for x in df['date']], tools=TOOLS, plot_width=int(1576.8), title = "box")
+    p = figure(x_range=[str(x) for x in df['date']], tools=TOOLS, plot_width=1000, plot_height=480, title = title)
     p.xaxis.major_label_orientation = pi/4
-    p.grid.grid_line_alpha=0.3
+
     p.segment(df.date, df.upper_outer_fence, df.date, df.lower_outer_fence, color="black")
     p.vbar(x = df['date'], width = .5, bottom = df['lower_inner_fence'], top = df['upper_inner_fence'], fill_color="#D5E1DD", line_color="black")
     p.vbar(x = df['date'], width = .5, bottom = df['q2']-.01, top = df['q2']+.01, fill_color="black", line_color="black")
     p.circle(x = ol_df['date'], y = ol_df['outliers'], size=5, color="#F2583E", alpha=0.5)
+    
+    p.xgrid.visible = False
+    p.ygrid.visible = False
+    #p.xaxis.visible = False
+    p.outline_line_width  = 0
+    p.outline_line_alpha = 0.0
     return p
 
 
