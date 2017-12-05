@@ -7,6 +7,8 @@ from bokeh.layouts import gridplot
 from bokeh.palettes import all_palettes
 import numpy as np
 import pandas as pd
+from boxplot import boxplot_data
+from bokeh.io import show
 
 colors = all_palettes['Colorblind'][8]
 
@@ -153,3 +155,20 @@ def bok_decompose(df):
     plot_list.append(p)
     p = gridplot(plot_list, ncols=1, plot_height = 225, plot_width = 800)
     return p
+
+def new_plot(series):
+    x = series.index
+    y = series.values
+    quantiles,outliers = boxplot_data(series)
+    p = bok_line(x,y)
+    p.line(x, quantiles['lower_outer_fence'], line_dash='dashed', line_color='grey')
+    p.line(x, quantiles['q1'], line_color = 'grey')
+    p.line(x, quantiles['q2'], line_color='black')
+    p.line(x, quantiles['upper_outer_fence'], line_dash='dashed', line_color='grey')
+    p.line(x, quantiles['q3'], line_color = 'grey')
+    return p 
+   
+    
+    
+    
+    
