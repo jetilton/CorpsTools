@@ -56,6 +56,9 @@ def boxplot(series, freq='year', figsize = (15,8), grid = False):
     df.boxplot(figsize= figsize, grid = grid)
 
 def boxplot_data(series):
+    """
+    http://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm
+    """
     d = pd.Series()
     s = series.dropna()
     s = s[~((s-s.mean()).abs()>3.5*s.std())]
@@ -113,10 +116,13 @@ def bokeh_ts_bx_plt(series, title, freq = 'year'):
     TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
     p = figure(x_range=[str(x) for x in df['date']], tools=TOOLS, plot_width=1000, plot_height=480, title = title)
     p.xaxis.major_label_orientation = pi/4
-
+    #whiskers
     p.segment(df.date, df.upper_outer_fence, df.date, df.lower_outer_fence, color="black")
-    p.vbar(x = df['date'], width = .5, bottom = df['lower_inner_fence'], top = df['upper_inner_fence'], fill_color="#D5E1DD", line_color="black")
+    #box
+    p.vbar(x = df['date'], width = .5, bottom = df['q1'], top = df['q3'], fill_color="#D5E1DD", line_color="black")
+    #median
     p.vbar(x = df['date'], width = .5, bottom = df['q2']-.01, top = df['q2']+.01, fill_color="black", line_color="black")
+    #outliers
     p.circle(x = ol_df['date'], y = ol_df['outliers'], size=5, color="#F2583E", alpha=0.5)
     
     p.xgrid.visible = False
