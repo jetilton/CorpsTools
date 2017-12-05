@@ -46,7 +46,7 @@ def cwms_read(path, **kwargs):
     """
     try:
         lookback = kwargs['lookback']
-        url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
+        url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
         url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
     except KeyError: 
         print('No lookback, searching for start_data, end_date')
