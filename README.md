@@ -53,7 +53,7 @@ I am not as familiar with R.  The function in cwms_read.r is up and running, but
 #### Python Examples
 
 ```python
-from cwms_read import get_cwms
+from cwms_read.cwms_read import get_cwms
 import pandas as pd
 
 path = 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV'
