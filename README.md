@@ -46,8 +46,7 @@ With pip:
 pip install git+https://github.com/jetilton/cwms_read.git
 ```
 
-I am not as familiar with R.  THe function in cwms_read.r is up and running, but it has not been tested, nor am I too 
-familiar with R.  Copy and paste the function into R and use it as a function instead of a required library.
+I am not as familiar with R.  The function in cwms_read.r is up and running, but it has not been tested.  Copy and paste the function into R and use it as a function instead of a required library.
 
 
 
