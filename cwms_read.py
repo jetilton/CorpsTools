@@ -3,16 +3,122 @@
 import requests
 import json
 import pandas as pd
-from time_window_url import time_window_url
+from datetime import datetime
+from math import floor
+
+def full_time(time_float):
+    """
+    helper function for time_delta_parse
+    
+    Arguments:          
+        time_float -- Float of a time, example 3.2 weeks 
+    
+    Returns:        
+        (time_float,remainder) -- tuple with the integer of original time float
+                                  and the remainder as a float 
+    
+    """
+    if time_float > 1:
+        remainder = time_float - int(time_float)
+        time_float = floor(time_float)
+    else: 
+        remainder = time_float
+        time_float = 0
+    return(time_float,remainder)
+
+def time_delta_parse(time_delta):
+    """
+    Helper function for url_w_d_h_m
+    
+    Arguments:         
+        time_delta -- time delta object
+    
+    Returns:        
+        (weeks,days,hours,minutes) -- tuple integer of weeks, days, hours, minutes
+    
+    """
+    seconds = time_delta.total_seconds()
+    weeks = seconds/(60*60*24*7)
+    weeks, remainder = full_time(weeks)
+    days = remainder * 7
+    days, remainder = full_time(days)
+    hours = remainder * 24
+    hours, remainder = full_time(hours)
+    minutes = floor(remainder * 60)
+    return (weeks,days,hours,minutes)
+
+def url_w_d_h_m(week,day,hour,minute):
+    """
+    Helper function for time_window_url
+    
+    Arguments:   
+        
+        week -- # of weeks as string or integer
+        day --  # of days as string or integer
+        hour --  # of hours as string or integer
+        minute --  # of minutes as string or integer
+        
+    Returns:    
+        
+       (week,day,hour,minute) -- tuple of string of weeks, days, hours, minutes with 
+                                 added string component for url
+    """
+    
+    if week<0:week = ''
+    else: week = str(week)+'w'
+    if day<0:day = ''
+    else: day = str(day)+'d'
+    if hour<0:hour = ''
+    else: hour = str(hour)+'h'
+    if minute<0:minute = ''
+    else: minute = str(minute)+'m'   
+    return(week,day,hour,minute)
+
+def time_window_url(path, start_date, end_date, **kwargs):
+    """
+    helper function for cwms_read
+    
+    Arguments:  
+        
+        path -- cwms data path, 
+        start_date -- date integer tuple format (YYYY, m, d)
+        end_date -- date integer tuple format (YYYY, m, d)
+        timezone -- optional keyword argument if time zone is specified.  
+                    Defaults to 'PST' if nothing set
+    Returns:
+        
+        url -- url string of CWMS data webservice for the specified 
+               data path and time window
+               
+    """
+    try:timezone = kwargs['timezone']
+    except:timezone = 'PST'
+    url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&backward=BACKWARD_WEEK_BACKWARD_DAY_BACKWARD_HOUR_BACKWARD_MINUTE_&forward=-FORWARD_WEEK_FORWARD_HOUR_FORWARD_MINUTE_&startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+08%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+08%3A00&query=%5B%22PATH%22%2C%22PATH%22%5D'
+    sy,sm,sd = start_date
+    start_date = datetime(sy,sm,sd)
+    ey,em,ed = end_date
+    end_date = datetime(ey,em,ed)
+    s_week,s_day,s_hour,s_minute = time_delta_parse(datetime.now() - start_date)
+    s_week,s_day,s_hour,s_minute=url_w_d_h_m(s_week,s_day,s_hour,s_minute)
+    e_week,e_day,e_hour,e_minute = time_delta_parse(datetime.now() - end_date)
+    e_week,e_day,e_hour,e_minute=url_w_d_h_m(e_week,e_day,e_hour,e_minute)
+    url = url.replace('BACKWARD_WEEK_', s_week).replace('BACKWARD_DAY_',s_day).replace('BACKWARD_HOUR_', s_hour).replace('BACKWARD_MINUTE_',s_minute)
+    url = url.replace('FORWARD_WEEK_', e_week).replace('FORWARD_DAY_',e_day).replace('FORWARD_HOUR_', e_hour).replace('FORWARD_MINUTE_',e_minute)
+    url = url.replace('START_MONTH', str(start_date.month)).replace('START_DAY', str(start_date.day)).replace('START_YEAR', str(start_date.year))
+    url = url.replace('END_MONTH', str(end_date.month)).replace('END_DAY', str(end_date.day)).replace('END_YEAR', str(end_date.year))
+    url = url.replace('PATH', path).replace('TIMEZONE_', timezone)
+    return url
+    
 
 def cwms_read(path, **kwargs):
+    
     """
     A function to parse CWMS json data from webservice
         
-    Positional: 
+    Positional Arguments: 
         path -- data path for web service (str), example: 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV' 
     
-    Keyword:
+    Keyword Arguments:
         
         The web service can either get a lookback, which is just a number of 
         days from the current day, or a time window.  Two key word arguments are 
@@ -36,14 +142,15 @@ def cwms_read(path, **kwargs):
                         
     Returns:
         
-        A pandas dataframe with metadata from the webservice is returned.  
-        Metadata is stored in df.__dict__['metadata'], the data is used in 
-        some of the plotting functions.  The metadata is easily lost if a df
-        is copied or transformed in some way.  It may be best to export the 
-        metadata if it is needed.  meta = df.__dict__['metadata']
+        df -- A pandas dataframe with metadata from the webservice is returned.  
+              Metadata is stored in df.__dict__['metadata'], the data is used in 
+              some of the plotting functions.  The metadata is easily lost if a df
+              is copied or transformed in some way.  It may be best to export the 
+              metadata if it is needed.  meta = df.__dict__['metadata']
         
         
     """
+    
     try:
         lookback = kwargs['lookback']
         url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
@@ -87,11 +194,14 @@ def cwms_read(path, **kwargs):
 
 def merge(df1, df2):
     """
-    A function to merge 2 pd df's that contain metadata, metadata is lost 
-    if a dataframe is merged or copied.
+    Merges two dataframes created using cwms_read to preserve metadata
         
-    Params: df1, df2 (pandas.core.frame.DataFrame)
-    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    Arguments: 
+        df1 -- pandas.core.frame.DataFrame with .__dict__['metadata']
+        df2 -- pandas.core.frame.DataFrame with .__dict__['metadata']
+        
+    Returns:
+        df -- Merged pandas.core.frame.DataFrame with .__dict__['metadata']
     """
     try:
         meta = df1.__dict__['metadata']
@@ -106,14 +216,20 @@ def merge(df1, df2):
 
 
 def get_cwms(paths, interval, **kwargs):
+   
     """
     A function that calls cwms_read on a list to request multiple paths from 
     the CWMS webservice. Paths must be the same time interval, this is meant to 
     easily create a time series dataframe of multiple data
-        
-    paths (str or list of str)
     
-    Returns:A pandas dataframe with metadata stored in df.__dict__['metadata']
+    Arguments:
+        
+        paths -- single string or list of string of CWMS data paths 
+    
+    Returns:
+        
+        df -- A pandas dataframe with metadata stored in df.__dict__['metadata']
+        
     """
     
     interval_dict = {
@@ -137,29 +253,37 @@ def get_cwms(paths, interval, **kwargs):
     return df
 
 def catalog():
+    
     """
-    A function that requests the CWMS catalog.  Returns a large dict and not easy 
+    
+    Requests the CWMS catalog.  Returns a large dict and not easy 
     wade through, it would be easier to go to a dataquery site to find 
     what you are looking for http://www.nwd-wc.usace.army.mil/dd/common/dataquery/www/
         
-    Params: 
+    Arguments: 
     
     Returns: dict
+    
     """
     url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?catalog=%5B%5D'
     r = requests.get(url)
     return json.loads(r.text)
 
 def site_catalog(site):
-    """
-    Desc: Returns a dictionary of CWMS data paths for a particular site
     
-    Params: site (str)
-    
-    Returns: dict
     """
+    Returns a dictionary of CWMS data paths for a particular site
+    
+    Arguments:
+        site -- cwms site name, example TDDO
+    
+    Returns: 
+        json.loads(r.text) -- dictionary of available site data
+        
+    """
+    
     url = r'http://www.nwd-wc.usace.army.mil/dd/common/web_service/webexec/getjson?tscatalog=%5B%22SITE%22%5D'
-    url = url.replace('SITE', site)
+    url = url.replace('SITE', site.upper())
     r = requests.get(url)
     return json.loads(r.text)
 
