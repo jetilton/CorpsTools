@@ -1,6 +1,6 @@
 # cwms_read
 
-Python and R functions to call time series data from the [Corps Water Management System (CWMS) webserveice](https://github.com/gunnarleffler/hydroJSON)
+Python and R functions to call time series data from the [Corps Water Management System (CWMS) webserveice](https://github.com/gunnarleffler/hydroJSON).
 CWMS is the automated information system supporting the USACE Water Management mission.
 It integrates real-time data acquisition, database storage, flow forecasting of watershed runoff, reservoir operation decision support, river profile modeling, inundated area determination,
 consequence /damage analysis, and information dissemination into a comprehensive suite of software supporting water management decision processes.  Inition develpment began in 1997 and is ongoing.  
@@ -50,6 +50,9 @@ I am not as familiar with R.  THe function in cwms_read.r is up and running, but
 familiar with R.  Copy and paste the function into R and use it as a function instead of a required library.
 
 
+
+#### Python Examples
+
 ```python
 from cwms_read import get_cwms
 import pandas as pd
@@ -71,7 +74,8 @@ date
 
 
 
-paths = paths = ['LGNW.Temp-Water.Inst.1Hour.0.GOES-REV','LGNW.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV','TDDO.Temp-Water.Inst.1Hour.0.GOES-REV','TDDO.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV']
+paths = paths = ['LGNW.Temp-Water.Inst.1Hour.0.GOES-REV','LGNW.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV',
+                 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV','TDDO.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV']
 
 df2 = get_cwms(paths, interval = 'hourly', start_date = (2016, 3, 1), end_date = (2017, 3, 1), timezone = 'PST')
 
@@ -98,7 +102,7 @@ date
 ```
 
 
-The dataframes store metadata in __dict__
+The dataframes store metadata in `__dict__`
 
 ```python
 
@@ -131,7 +135,6 @@ It is best to export this into a standalone dictionary because it can be lost du
 
 df1 = df1.melt()
 
-df1.__dict__['metadata']
 
 df1.__dict__['metadata']
 
@@ -142,14 +145,6 @@ Traceback (most recent call last):
 
 KeyError: 'metadata'
 ```
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
