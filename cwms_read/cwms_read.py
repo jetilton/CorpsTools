@@ -176,7 +176,7 @@ def cwms_read(path, **kwargs):
             column_name = '_'.join(path.split('.')[:2])
             try:path_data = vals['values']
             except KeyError: 
-                print('No data: ' + path)
+                
                 continue
                         
             date = [val[0] for val in path_data]
@@ -189,9 +189,12 @@ def cwms_read(path, **kwargs):
             metadata = {column_name:vals}
             
             df.__dict__['metadata'] = metadata
-            
-    return df
-
+    try:        
+        return df
+    except UnboundLocalError:
+        print('No data: ' + path)
+        return pd.DataFrame()
+        
 def merge(df1, df2):
     """
     Merges two dataframes created using cwms_read to preserve metadata
@@ -215,7 +218,7 @@ def merge(df1, df2):
     
 
 
-def get_cwms(paths, interval, **kwargs):
+def get_cwms(paths, interval,verbose = False, **kwargs):
    
     """
     A function that calls cwms_read on a list to request multiple paths from 
@@ -231,6 +234,7 @@ def get_cwms(paths, interval, **kwargs):
         df -- A pandas dataframe with metadata stored in df.__dict__['metadata']
         
     """
+    
     
     interval_dict = {
                     '1Hour':'1Hour',
@@ -249,7 +253,10 @@ def get_cwms(paths, interval, **kwargs):
     
     df = pd.DataFrame()
     for path in paths:
-        df = df.pipe(merge, df2 =cwms_read(path, **kwargs))
+        if verbose: print(path)
+        df2 =cwms_read(path, **kwargs)
+        if any(df2):df = df.pipe(merge, df2)
+        
     return df
 
 def catalog():
