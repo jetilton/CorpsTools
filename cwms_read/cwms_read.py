@@ -110,7 +110,7 @@ def time_window_url(path, start_date, end_date, **kwargs):
     return url
     
 
-def cwms_read(path, **kwargs):
+def cwms_read(path, verbose = False, **kwargs):
     
     """
     A function to parse CWMS json data from webservice
@@ -156,7 +156,7 @@ def cwms_read(path, **kwargs):
         url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
         url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
     except KeyError: 
-        print('No lookback, searching for start_data, end_date')
+        if verbose: print('No lookback, searching for start_data, end_date')
         try:
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
             try: timezone = kwargs['timezone']
