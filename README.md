@@ -33,17 +33,21 @@ or
 
 To run in Python activate the desired environment from the command line or create a new one.
 
-Windows:
+##### Windows:
 ```
 activate environment_name
 ```
-Mac:
+###### Mac:
 ```
 source activate environment_name
 ```
-With pip:
+##### With pip:
 ```
 pip install git+https://github.com/jetilton/cwms_read.git
+```
+or
+```
+pip install --upgrade git+https://github.com/jetilton/cwms_read.git
 ```
 
 I am not as familiar with R.  The function in cwms_read.r is up and running, but it has not been tested.  Copy and paste the function into R and use it as a function instead of a required library.
