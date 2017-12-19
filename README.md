@@ -52,6 +52,10 @@ I am not as familiar with R.  The function in cwms_read.r is up and running, but
 
 #### Python Examples
 
+##### get_cwms
+The main function of this package is `get_cwms`, which requires a time series path name, a desired interval (hour, 6hour, daily), 
+and either an integer lookback in days or a specified date interval.
+
 ```python
 from cwms_read.cwms_read import get_cwms
 import pandas as pd
@@ -100,7 +104,7 @@ date
 
 ```
 
-
+##### Metadata
 The dataframes store metadata in `__dict__`
 
 ```python
@@ -144,6 +148,53 @@ Traceback (most recent call last):
 
 KeyError: 'metadata'
 ```
+##### Catalogs
+There are also two catalog options.  One to get all of the pathnames for a particular
+site (`site_catalog()`), the other retrieves all available site paths (`catalog()`).
+
+
+```python
+site_catalog('tddo')
+
+
+Out[3]: 
+{'TDDO': {'HUC': '',
+  'active_flag': 'T',
+  'coordinates': {'datum': 'NAD83',
+   'latitude': 45.60734258,
+   'longitude': -121.1734044},
+  'elevation': {'accuracy': 0.0,
+   'datum': 'NGVD29',
+   'method': '',
+   'value': 0.0},
+  'location_type': ' ',
+  'name': 'Columbia R bl The Dalles Dam WQS',
+  'responsibility': 'NWDP',
+  'time_format': '%Y-%m-%dT%H:%M:%S%z',
+  'timeseries': {'TDDO.%-Saturation-TDG.Inst.1Hour.0.GOES-COMPUTED-REV': {'notes': '(2005-2017)'},
+   'TDDO.Depth-WQSensors.Inst.1Hour.0.GOES-REV': {'notes': '(2000-2017)'},
+   'TDDO.Depth-WQSensors.Inst.1Hour.0.USGS-REV': {'notes': '(2007-2017)'},
+   'TDDO.Flow.Inst.~30Minutes.0.USGS-RAW': {'notes': '(2003-2017)'},
+   'TDDO.Pres-Air.Inst.1Hour.0.GOES-REV': {'notes': '(1996-2017)'},
+   'TDDO.Pres-Air.Inst.1Hour.0.USGS-REV': {'notes': '(2007-2017)'},
+   'TDDO.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV': {'notes': '(1996-2017)'},
+   'TDDO.Pres-Water-TotalGas.Inst.1Hour.0.USGS-REV': {'notes': '(2007-2017)'},
+   'TDDO.Stage.Inst.1Hour.0.GOES-RAW': {'notes': '(2010-2015)'},
+   'TDDO.Stage.Inst.~30Minutes.0.USGS-RAW': {'notes': '(2014-2017)'},
+   'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV': {'notes': '(1996-2017)'},
+   'TDDO.Temp-Water.Inst.1Hour.0.USGS-REV': {'notes': '(2007-2017)'}},
+  'timezone': 'PST',
+  'tz_offset': -8}}
+  
+  
+  
+cat = catalog() 
+len(cat.keys())
+Out[6]: 6002
+
+```
+A better way to explore unknown sites is to visit the [Northwest Division Dataquery website](http://pweb.crohms.org/dd/common/dataquery/www/index.html).
+THis website allows for full name searches, and then will display the site's acronym.
 
 ## Authors
 
