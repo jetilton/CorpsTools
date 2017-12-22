@@ -174,6 +174,7 @@ def cwms_read(path, verbose = False, **kwargs):
         for path, vals in data['timeseries'].items():
             
             column_name = '_'.join(path.split('.')[:2])
+            column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
             except KeyError: 
                 
