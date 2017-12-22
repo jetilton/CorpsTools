@@ -194,7 +194,9 @@ def cwms_read(path, verbose = False, **kwargs):
         return df
     except UnboundLocalError:
         print('No data: ' + path)
-        return pd.DataFrame()
+        column_name = '_'.join(path.split('.')[:2])
+        column_name = '_'.join(column_name.split('-'))
+        return pd.DataFrame(columns = [column_name])
         
 def merge(df1, df2):
     """
