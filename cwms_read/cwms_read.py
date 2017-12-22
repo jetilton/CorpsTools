@@ -211,10 +211,16 @@ def merge(df1, df2):
     """
     try:
         meta = df1.__dict__['metadata']
-        meta2 = df2.__dict__['metadata']
-        meta.update(meta2)
     except KeyError:
-        meta = df2.__dict__['metadata']
+        df1.__dict__['metadata'] = {}
+        meta = df1.__dict__['metadata']
+    try:
+        meta2 = df2.__dict__['metadata']
+    except KeyError:
+        df2.__dict__['metadata'] = {}
+        meta2 = df2.__dict__['metadata']
+    meta.update(meta2)
+   
     df = pd.concat([df1, df2], axis = 1)
     df.__dict__['metadata'] = meta
     return df
