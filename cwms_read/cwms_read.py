@@ -75,7 +75,7 @@ def url_w_d_h_m(week,day,hour,minute):
     return(week,day,hour,minute)
 
 
-def time_window_url(path, start_date, end_date, public = True, **kwargs):
+def time_window_url(path, start_date, end_date, public=True, **kwargs):
     """
     helper function for cwms_read
     
@@ -95,6 +95,8 @@ def time_window_url(path, start_date, end_date, public = True, **kwargs):
     """
     try:timezone = kwargs['timezone']
     except:timezone = 'PST'
+    
+    
     if public:
         url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&backward=BACKWARD_WEEK_BACKWARD_DAY_BACKWARD_HOUR_BACKWARD_MINUTE_&forward=-FORWARD_WEEK_FORWARD_HOUR_FORWARD_MINUTE_&startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+08%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+08%3A00&query=%5B%22PATH%22%2C%22PATH%22%5D'
     else:
@@ -111,7 +113,7 @@ def time_window_url(path, start_date, end_date, public = True, **kwargs):
 
     
 
-def cwms_read(path, verbose = False, **kwargs):
+def cwms_read(path, public, verbose = False, **kwargs):
     
     """
     A function to parse CWMS json data from webservice
@@ -162,7 +164,7 @@ def cwms_read(path, verbose = False, **kwargs):
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
             try: timezone = kwargs['timezone']
             except: timezone = 'PST'
-            url = time_window_url(path, start_date, end_date, timezone = timezone)
+            url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
     
@@ -228,7 +230,7 @@ def merge(df1, df2):
     
 
 
-def get_cwms(paths, interval, verbose = False, **kwargs):
+def get_cwms(paths, interval, verbose = False,public = True, **kwargs):
    
     """
     A function that calls cwms_read on a list to request multiple paths from 
@@ -264,7 +266,7 @@ def get_cwms(paths, interval, verbose = False, **kwargs):
     df = pd.DataFrame()
     for path in paths:
         if verbose: print(path)
-        df2 =cwms_read(path, **kwargs)
+        df2 =cwms_read(path,public = public, **kwargs)
         if any(df2):df = df.pipe(merge, df2)
         
     return df
