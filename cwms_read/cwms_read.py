@@ -162,7 +162,7 @@ def cwms_read(path, verbose = False, **kwargs):
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
             try: timezone = kwargs['timezone']
             except: timezone = 'PST'
-            url = time_window_url(path, start_date, end_date, public = public, timezone = timezone)
+            url = time_window_url(path, start_date, end_date, timezone = timezone)
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
     
