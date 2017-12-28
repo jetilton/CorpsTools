@@ -74,13 +74,15 @@ def url_w_d_h_m(week,day,hour,minute):
     else: minute = str(minute)+'m'   
     return(week,day,hour,minute)
 
-def time_window_url(path, start_date, end_date, **kwargs):
+
+def time_window_url(path, start_date, end_date, public = True, **kwargs):
     """
     helper function for cwms_read
     
     Arguments:  
         
         path -- cwms data path, 
+        public -- boolean, 
         start_date -- date integer tuple format (YYYY, m, d)
         end_date -- date integer tuple format (YYYY, m, d)
         timezone -- optional keyword argument if time zone is specified.  
@@ -93,21 +95,20 @@ def time_window_url(path, start_date, end_date, **kwargs):
     """
     try:timezone = kwargs['timezone']
     except:timezone = 'PST'
-    url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&backward=BACKWARD_WEEK_BACKWARD_DAY_BACKWARD_HOUR_BACKWARD_MINUTE_&forward=-FORWARD_WEEK_FORWARD_HOUR_FORWARD_MINUTE_&startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+08%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+08%3A00&query=%5B%22PATH%22%2C%22PATH%22%5D'
+    if public:
+        url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&backward=BACKWARD_WEEK_BACKWARD_DAY_BACKWARD_HOUR_BACKWARD_MINUTE_&forward=-FORWARD_WEEK_FORWARD_HOUR_FORWARD_MINUTE_&startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+08%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+08%3A00&query=%5B%22PATH%22%2C%22PATH%22%5D'
+    else:
+        url = r'http://nwp-wmlocal2.nwp.usace.army.mil/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+00%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+00%3A00'
+
     sy,sm,sd = start_date
     start_date = datetime(sy,sm,sd)
     ey,em,ed = end_date
     end_date = datetime(ey,em,ed)
-    s_week,s_day,s_hour,s_minute = time_delta_parse(datetime.now() - start_date)
-    s_week,s_day,s_hour,s_minute=url_w_d_h_m(s_week,s_day,s_hour,s_minute)
-    e_week,e_day,e_hour,e_minute = time_delta_parse(datetime.now() - end_date)
-    e_week,e_day,e_hour,e_minute=url_w_d_h_m(e_week,e_day,e_hour,e_minute)
-    url = url.replace('BACKWARD_WEEK_', s_week).replace('BACKWARD_DAY_',s_day).replace('BACKWARD_HOUR_', s_hour).replace('BACKWARD_MINUTE_',s_minute)
-    url = url.replace('FORWARD_WEEK_', e_week).replace('FORWARD_DAY_',e_day).replace('FORWARD_HOUR_', e_hour).replace('FORWARD_MINUTE_',e_minute)
     url = url.replace('START_MONTH', str(start_date.month)).replace('START_DAY', str(start_date.day)).replace('START_YEAR', str(start_date.year))
     url = url.replace('END_MONTH', str(end_date.month)).replace('END_DAY', str(end_date.day)).replace('END_YEAR', str(end_date.year))
     url = url.replace('PATH', path).replace('TIMEZONE_', timezone)
     return url
+
     
 
 def cwms_read(path, verbose = False, **kwargs):
@@ -161,7 +162,7 @@ def cwms_read(path, verbose = False, **kwargs):
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
             try: timezone = kwargs['timezone']
             except: timezone = 'PST'
-            url = time_window_url(path, start_date, end_date, timezone = timezone)
+            url = time_window_url(path, start_date, end_date, public = public, timezone = timezone)
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
     
@@ -227,7 +228,7 @@ def merge(df1, df2):
     
 
 
-def get_cwms(paths, interval,verbose = False, **kwargs):
+def get_cwms(paths, interval, verbose = False, **kwargs):
    
     """
     A function that calls cwms_read on a list to request multiple paths from 
