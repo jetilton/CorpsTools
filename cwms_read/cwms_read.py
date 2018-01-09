@@ -156,18 +156,22 @@ def cwms_read(path, public, verbose = False, **kwargs):
     
     try:
         lookback = kwargs['lookback']
-        url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
-        url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
+        end = datetime.now()
+        start = end - datetime.timedelta(days=lookback)
+        start_date = (start.year,start.month,start.day)
+        end_date = (end.year,end.month,end.day)
+        #url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
+        #url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
     except KeyError: 
         if verbose: print('No lookback, searching for start_data, end_date')
         try:
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
             try: timezone = kwargs['timezone']
             except: timezone = 'PST'
-            url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
+            #url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
-    
+    url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
     r = requests.get(url)
     json_data = json.loads(r.text)
    
