@@ -166,11 +166,11 @@ def cwms_read(path, public, verbose = False, **kwargs):
         if verbose: print('No lookback, searching for start_data, end_date')
         try:
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
-            try: timezone = kwargs['timezone']
-            except: timezone = 'PST'
             #url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
+    try: timezone = kwargs['timezone']
+    except: timezone = 'PST'
     url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
     r = requests.get(url)
     json_data = json.loads(r.text)
