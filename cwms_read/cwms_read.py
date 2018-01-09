@@ -3,7 +3,7 @@
 import requests
 import json
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import floor
 
 def full_time(time_float):
@@ -157,7 +157,7 @@ def cwms_read(path, public, verbose = False, **kwargs):
     try:
         lookback = kwargs['lookback']
         end = datetime.now()
-        start = end - datetime.timedelta(days=lookback)
+        start = end - timedelta(days=lookback)
         start_date = (start.year,start.month,start.day)
         end_date = (end.year,end.month,end.day)
         #url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
