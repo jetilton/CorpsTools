@@ -154,21 +154,8 @@ def cwms_read(path, public, verbose = False, **kwargs):
         
     """
     
-    try:
-        lookback = kwargs['lookback']
-        end = datetime.now()
-        start = end - timedelta(days=lookback)
-        start_date = (start.year,start.month,start.day)
-        end_date = (end.year,end.month,end.day)
-        #url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?query=%5B%22PATH%22%5D&backward=LOOKBACKd'
-        #url = url.replace('PATH', path).replace('LOOKBACK', str(lookback))
-    except KeyError: 
-        if verbose: print('No lookback, searching for start_data, end_date')
-        try:
-            start_date, end_date = kwargs['start_date'], kwargs['end_date']
-            #url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
-        except KeyError:
-            raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
+    start_date = kwargs['start_date']
+    end_date = kwargs['end_date']
     try: timezone = kwargs['timezone']
     except: timezone = 'PST'
     url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
@@ -234,7 +221,7 @@ def merge(df1, df2):
     
 
 
-def get_cwms(paths, interval, verbose = False,public = True, **kwargs):
+def get_cwms(paths, interval, verbose = False, fill = True, public = True, **kwargs):
    
     """
     A function that calls cwms_read on a list to request multiple paths from 
@@ -243,7 +230,11 @@ def get_cwms(paths, interval, verbose = False,public = True, **kwargs):
     
     Arguments:
         
-        paths -- single string or list of string of CWMS data paths 
+        paths -- single string or list of string of CWMS data paths
+        interval -- string to indicate time interval options are hour, day
+        public -- Boolean, is the data public, if false can only be run on local 
+                    server
+        fill -- boolean, fills missing time stamps if true
     
     Returns:
         
@@ -251,7 +242,19 @@ def get_cwms(paths, interval, verbose = False,public = True, **kwargs):
         
     """
     
-    
+    try:
+        lookback = kwargs['lookback']
+        end = datetime.now()
+        start = end - timedelta(days=lookback)
+        start_date = (start.year,start.month,start.day)
+        end_date = (end.year,end.month,end.day)
+    except KeyError: 
+        if verbose: print('No lookback, searching for start_data, end_date')
+        try:
+            start_date, end_date = kwargs['start_date'], kwargs['end_date']
+        except KeyError:
+            raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
+            
     interval_dict = {
                     '1Hour':'1Hour',
                     'hour': '1Hour',
@@ -270,9 +273,12 @@ def get_cwms(paths, interval, verbose = False,public = True, **kwargs):
     df = pd.DataFrame()
     for path in paths:
         if verbose: print(path)
-        df2 =cwms_read(path,public = public, **kwargs)
+        df2 =cwms_read(path,public = public, start_date = start_date, end_date = end_date)
         if any(df2):df = df.pipe(merge, df2)
-        
+    if fill:
+        date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = "H")
+        df = df.reindex(date)
+        df.index.rename('date', inplace = True)
     return df
 
 def catalog():
