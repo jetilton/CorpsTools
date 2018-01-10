@@ -128,9 +128,7 @@ def cwms_read(path, public, verbose = False, **kwargs):
         needed for a time wondow, start_date, end_date.  The Timezone can also
         be set.
         
-        lookback    --  The number of days from current day to grab data.
-                        (int or str) 
-                        example: 7
+        
                         
         start_date  --  The start of a time window (tuple) formatted 
                         (year, month, day)
@@ -156,8 +154,7 @@ def cwms_read(path, public, verbose = False, **kwargs):
     
     start_date = kwargs['start_date']
     end_date = kwargs['end_date']
-    try: timezone = kwargs['timezone']
-    except: timezone = 'PST'
+    timezone = kwargs['timezone']
     url = time_window_url(path,start_date, end_date, public=public,timezone = timezone)
     r = requests.get(url)
     json_data = json.loads(r.text)
@@ -235,6 +232,20 @@ def get_cwms(paths, interval, verbose = False, fill = True, public = True, **kwa
         public -- Boolean, is the data public, if false can only be run on local 
                     server
         fill -- boolean, fills missing time stamps if true
+        
+        lookback    --  The number of days from current day to grab data.
+                        (int or str) 
+                        example: 7
+                        
+        start_date  --  The start of a time window (tuple) formatted 
+                        (year, month, day)
+                        example: (2017, 3, 22)
+                        
+        end_date    --  The end of a time window (tuple) formatted 
+                        (year, month, day)
+                        example: (2017, 3, 22)
+        
+        timezone    --  "PST", "PDT", "MST", "MDT", "GMT"
     
     Returns:
         
@@ -254,7 +265,8 @@ def get_cwms(paths, interval, verbose = False, fill = True, public = True, **kwa
             start_date, end_date = kwargs['start_date'], kwargs['end_date']
         except KeyError:
             raise ValueError('Set a lookback or time window with lookback = int, or start_date = (y,m,d), end_date = (y,m,d)')
-            
+    try: timezone = kwargs['timezone']
+    except: timezone = 'PST'        
     interval_dict = {
                     '1Hour':'1Hour',
                     'hour': '1Hour',
@@ -273,12 +285,14 @@ def get_cwms(paths, interval, verbose = False, fill = True, public = True, **kwa
     df = pd.DataFrame()
     for path in paths:
         if verbose: print(path)
-        df2 =cwms_read(path,public = public, start_date = start_date, end_date = end_date)
+        df2 =cwms_read(path,public = public, start_date = start_date, end_date = end_date, timezone = timezone)
         if any(df2):df = df.pipe(merge, df2)
     if fill:
+        meta = df.__dict__['metadata']
         date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = "H")
         df = df.reindex(date)
         df.index.rename('date', inplace = True)
+        df.__dict__['metadata'] = meta
     return df
 
 def catalog():
