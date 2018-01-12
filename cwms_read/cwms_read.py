@@ -26,6 +26,14 @@ def full_time(time_float):
         time_float = 0
     return(time_float,remainder)
 
+def reindex(df, start_date, end_date):
+        date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = "H")
+        df = df.reindex(date)
+        df.index.rename('date', inplace = True)
+        return df
+
+
+
 def time_delta_parse(time_delta):
     """
     Helper function for url_w_d_h_m
@@ -289,9 +297,7 @@ def get_cwms(paths, interval, verbose = False, fill = True, public = True, **kwa
         if any(df2):df = df.pipe(merge, df2)
     if fill:
         meta = df.__dict__['metadata']
-        date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = "H")
-        df = df.reindex(date)
-        df.index.rename('date', inplace = True)
+        df = df.pipe(reindex, start_date, end_date)
         df.__dict__['metadata'] = meta
     return df
 
