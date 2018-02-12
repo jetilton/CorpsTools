@@ -111,7 +111,10 @@ def get_cwms(path, public, fill = True, **kwargs):
     json_data = json.loads(r.text)
     df_list = []
     meta = {}
-    for site,data in json_data.items():
+    
+    for site in list(path):
+        s = site.split('.')[0]
+        data = json_data[s]
         lat = data['coordinates']['latitude']
         long = data['coordinates']['longitude']
         tz_offset = data['tz_offset']
