@@ -57,7 +57,7 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
 
     
 
-def get_cwms(path, public, fill = True, **kwargs):
+def get_cwms(path, public = True, fill = True, **kwargs):
     
     """
     A function to parse CWMS json data from webservice into a pandas dataframe
