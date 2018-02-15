@@ -29,14 +29,12 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
                data path and time window
                
     """
-    
-   
+
     if type(paths)==list: path = '%22%2C%22'.join(paths)
     else: path = paths
         
     if public:
-        #url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&query=%5B%22PATH%22%5D&'
-        url = r'http://nwp-wmlocal2.nwp.usace.army.mil/common/web_service/webexec/getjson?timezone=TIMEZONE_&query=%5B%22PATH%22%5D&'
+        url = r'http://pweb.crohms.org/dd/common/web_service/webexec/getjson?timezone=TIMEZONE_&query=%5B%22PATH%22%5D&'
     else:
         url = r'http://nwp-wmlocal2.nwp.usace.army.mil/common/web_service/webexec/getjson?timezone=TIMEZONE_&query=%5B%22PATH%22%5D&'
     
