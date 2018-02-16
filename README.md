@@ -21,6 +21,9 @@ cwms_read intends to provide ease of access to CWMS data for scientists and engi
     - Pandas
     - json
     - requests
+
+This may work on Python 2.75, but it has not been tested.
+
 or
 
 #### R
@@ -66,17 +69,17 @@ import pandas as pd
 
 path = 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV'
 
-df1 = get_cwms(path, interval = 'hourly', lookback = 7)
+df1 = get_cwms(path, lookback = 7, public = True, fill = False)
 df1.head()
 
-Out[2]: 
-                     TDDO_Temp-Water
+Out[1]: 
+                     TDDO_Temp_Water
 date                                
-2017-11-30 11:00:00            48.61
-2017-11-30 12:00:00            48.67
-2017-11-30 13:00:00            48.69
-2017-11-30 14:00:00            48.69
-2017-11-30 15:00:00            48.70
+2018-02-09 08:00:00           42.224
+2018-02-09 09:00:00           42.188
+2018-02-09 10:00:00           42.188
+2018-02-09 11:00:00           42.152
+2018-02-09 12:00:00           42.116
 
 
 
@@ -84,27 +87,26 @@ date
 paths = paths = ['LGNW.Temp-Water.Inst.1Hour.0.GOES-REV','LGNW.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV',
                  'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV','TDDO.Pres-Water-TotalGas.Inst.1Hour.0.GOES-REV']
 
-df2 = get_cwms(paths, interval = 'hourly', start_date = (2016, 3, 1), end_date = (2017, 3, 1), timezone = 'PST')
+df2 = get_cwms(paths, start_date = (2016, 3, 1), end_date = (2017, 3, 1), timezone = 'PST', fill = True)
 
 df2.head()
 
 Out[4]: 
-                     LGNW_Temp-Water  LGNW_Pres-Water-TotalGas  \
+                     LGNW_Pres_Water_TotalGas  LGNW_Temp_Water  \
 date                                                             
-2016-03-01 00:00:00           40.748                     762.0   
-2016-03-01 01:00:00           40.748                     762.0   
-2016-03-01 02:00:00           40.766                     762.0   
-2016-03-01 03:00:00           40.784                     762.0   
-2016-03-01 04:00:00           40.784                     762.0   
+2016-03-01 00:00:00                     762.0           40.748   
+2016-03-01 01:00:00                     762.0           40.748   
+2016-03-01 02:00:00                     762.0           40.766   
+2016-03-01 03:00:00                     762.0           40.784   
+2016-03-01 04:00:00                     762.0           40.784   
 
-                     TDDO_Temp-Water  TDDO_Pres-Water-TotalGas  
+                     TDDO_Pres_Water_TotalGas  TDDO_Temp_Water  
 date                                                            
-2016-03-01 00:00:00            42.75                     768.0  
-2016-03-01 01:00:00            42.75                     768.0  
-2016-03-01 02:00:00            42.76                     768.0  
-2016-03-01 03:00:00            42.76                     768.0  
-2016-03-01 04:00:00            42.76                     770.0  
-
+2016-03-01 00:00:00                     768.0            42.75  
+2016-03-01 01:00:00                     768.0            42.75  
+2016-03-01 02:00:00                     768.0            42.76  
+2016-03-01 03:00:00                     768.0            42.76  
+2016-03-01 04:00:00                     770.0            42.76  
 
 ```
 
@@ -116,22 +118,23 @@ The dataframes store metadata in `__dict__`
 df1.__dict__['metadata']
 
 Out[5]: 
-{'TDDO_Temp-Water': {'active_flag': 1,
-  'count': 166,
+{'TDDO_Temp_Water': {'active_flag': 1,
+  'count': 167,
   'duration': ' ',
-  'end_timestamp': '2017-12-07T08:00:00',
+  'end_timestamp': '2018-02-16T06:00:00',
   'interval': ' ',
   'lat': 45.60734258,
   'long': -121.1734044,
-  'max_value': 48.7,
-  'min_value': 47.16,
-  'notes': '(1996-2017)',
+  'max_value': 42.224,
+  'min_value': 40.892,
+  'notes': '(1996-2018)',
   'parameter': 'Temp-Water',
   'path': 'TDDO.Temp-Water.Inst.1Hour.0.GOES-REV',
   'quality_type': 'string',
   'sigfig': 3,
   'site_quality': [],
-  'start_timestamp': '2017-11-30T11:00:00',
+  'start_timestamp': '2018-02-09T08:00:00',
+  'tz_offset': -8,
   'units': 'F'}}
 
 ```
