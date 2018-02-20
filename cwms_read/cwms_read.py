@@ -112,7 +112,11 @@ def get_cwms(path, public = True, fill = True, **kwargs):
     
     for site in list(path):
         s = site.split('.')[0]
-        data = json_data[s]
+        try:
+            data = json_data[s]
+        except KeyError:
+            print('No data for %s' % site)
+            continue
         lat = data['coordinates']['latitude']
         long = data['coordinates']['longitude']
         tz_offset = data['tz_offset']
