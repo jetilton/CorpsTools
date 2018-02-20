@@ -30,7 +30,8 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
                
     """
 
-    if type(paths)==list: path = '%22%2C%22'.join(paths)
+    if isinstance(paths, list): 
+        path = '%22%2C%22'.join(paths)
     else: path = paths
         
     if public:
@@ -109,8 +110,9 @@ def get_cwms(path, public = True, fill = True, **kwargs):
     json_data = json.loads(r.text)
     df_list = []
     meta = {}
-    
-    for site in list(path):
+    if not isinstance(path, list):
+        path = [path]
+    for site in path:
         s = site.split('.')[0]
         try:
             data = json_data[s]
