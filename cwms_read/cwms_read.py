@@ -5,12 +5,43 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 
-def reindex(df, start_date, end_date):
-        date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = "H")
+def reindex(df, start_date, end_date, freq):
+        date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = freq)
+        date = [pd.Timestamp(x) for x in date]
         df = df.reindex(date)
         df.index.rename('date', inplace = True)
         return df
 
+def get_frequency(index: pd.core.indexes.datetimes.DatetimeIndex)->str:
+    """
+    Args:
+        
+        index: a pd.core.indexes.datetimes.DatetimeIndex from a timeseries
+        
+    Returns:
+        
+        freq: a string value of either a daily, hourly, minutely, or secondly 
+              Offset Alias with the appropriate multiple.
+              This is not very robust, and returns False if it is not able to 
+              easily determine the frequency
+    """
+    seconds = index.to_series().diff().median().total_seconds()
+    minutes = seconds/60
+    hours = minutes/60
+    days = hours/24
+    if days>=1 and days%int(days) == 0:
+        freq = str(int(days))+'D'
+    elif hours>=1 and hours%int(hours) == 0:
+        freq = str(int(hours))+'H'
+    elif minutes>=1 and minutes%int(minutes) == 0:
+        freq = str(int(minutes))+'min'
+    elif seconds>=1 and seconds%int(seconds) == 0:
+        freq = str(int(seconds))+'S'
+    else: 
+        freq =  False
+    return freq
+    
+    
 def time_window_url(paths, public=True, lookback = 7, start_date = False, end_date = False, timezone = 'PST'):
     """
     helper function for cwms_read
@@ -144,13 +175,16 @@ def get_cwms(path, public = True, fill = True, **kwargs):
     df = pd.concat(df_list, axis = 1)
     
     if fill:
-        
-        if lookback:
-            end = datetime.now()
-            start = end - timedelta(days=lookback)
-            start_date = (start.year,start.month,start.day)
-            end_date = (end.year,end.month,end.day)
-        df = df.pipe(reindex, start_date, end_date)
+        freq = get_frequency(df.index)
+        if not freq:
+            print('Unable to determine frequency, returning data frame unfilled')
+        else:
+            if lookback:
+                end = datetime.now()
+                start = end - timedelta(days=lookback)
+                start_date = (start.year,start.month,start.day)
+                end_date = (end.year,end.month,end.day)
+            df = df.pipe(reindex, start_date, end_date, freq)
     df.__dict__['metadata'] = meta
     return df
     
