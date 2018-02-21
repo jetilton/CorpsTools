@@ -122,13 +122,15 @@ def get_cwms(path, public = True, fill = True, **kwargs):
         lat = data['coordinates']['latitude']
         long = data['coordinates']['longitude']
         tz_offset = data['tz_offset']
+        tz = data['timezone']
         for path, vals in data['timeseries'].items():
             
             column_name = '_'.join(path.split('.')[:2])
             column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
-            except KeyError: continue
-                
+            except KeyError: 
+                print('No data for %s' % site)
+                continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
             df= pd.DataFrame({'date': date, column_name: values})
@@ -136,7 +138,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
             df.set_index('date', inplace = True)
             df_list.append(df)
             vals.pop('values', None)
-            vals.update({'path':path, 'lat':lat,'long':long, 'tz_offset':tz_offset})
+            vals.update({'path':path, 'lat':lat,'long':long, 'tz_offset':tz_offset, 'timezone':tz})
             meta.update({column_name:vals})
     
     df = pd.concat(df_list, axis = 1)
