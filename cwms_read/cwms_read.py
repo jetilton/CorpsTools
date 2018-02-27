@@ -4,6 +4,7 @@ import requests
 import json
 import pandas as pd
 from datetime import datetime, timedelta
+import sys
 
 def reindex(df, start_date, end_date, freq):
         date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = freq)
@@ -148,7 +149,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
         try:
             data = json_data[s]
         except KeyError:
-            print('No data for %s' % site)
+            sys.stderr.write('No data for %s' % site)
             continue
         lat = data['coordinates']['latitude']
         long = data['coordinates']['longitude']
@@ -160,7 +161,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
             column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
             except KeyError: 
-                print('No data for %s' % site)
+                sys.stderr.write('No data for %s' % site)
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
@@ -177,7 +178,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
     if fill:
         freq = get_frequency(df.index)
         if not freq:
-            print('Unable to determine frequency, returning data frame unfilled')
+            sys.stderr.write('Unable to determine frequency, returning data frame unfilled')
         else:
             if lookback:
                 end = datetime.now()
