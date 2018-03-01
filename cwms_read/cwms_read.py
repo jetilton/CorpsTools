@@ -5,10 +5,21 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 import sys
+from numpy import median
 
 def reindex(df, start_date, end_date, freq):
         date = pd.date_range(start = datetime(*start_date), end = datetime(*end_date), freq = freq)
         date = [pd.Timestamp(x) for x in date]
+        if 'D' in freq:
+            index = df.index.copy()
+            index_hours = [x.hour for x in index]
+            m = median(index_hours)
+            def find_remainder(x):
+                return x%m
+            if sum([x%m for x in index_hours])>0:
+                return False
+            else:
+                date = [x.replace(hour = int(m)) for x in date] 
         df = df.reindex(date)
         df.index.rename('date', inplace = True)
         return df
@@ -149,7 +160,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
         try:
             data = json_data[s]
         except KeyError:
-            sys.stderr.write('No data for %s' % site)
+            sys.stderr.write('No data for %s\n' % site)
             continue
         lat = data['coordinates']['latitude']
         long = data['coordinates']['longitude']
@@ -161,7 +172,7 @@ def get_cwms(path, public = True, fill = True, **kwargs):
             column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
             except KeyError: 
-                sys.stderr.write('No data for %s' % site)
+                sys.stderr.write('!No data for %s\n' % site)
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
