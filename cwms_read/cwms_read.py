@@ -162,7 +162,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         except KeyError:
             site_dict.update({site:[path]})
             
-    for site,paths in site_dict.items():
+    for site,path_list in site_dict.items():
         try:
             data = json_data[site]
         except KeyError:
@@ -172,10 +172,8 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         long = data['coordinates']['longitude']
         tz_offset = data['tz_offset']
         tz = data['timezone']
-        for path in paths:
+        for path in path_list:
             vals = data['timeseries'][path]
-        #for path, vals in data['timeseries'].items():
-            #print(vals['values'])
             column_name = '_'.join(path.split('.')[:2])
             column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
