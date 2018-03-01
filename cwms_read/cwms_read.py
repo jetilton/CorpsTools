@@ -173,7 +173,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         tz_offset = data['tz_offset']
         tz = data['timezone']
         for path in path_list:
-            vals = data['timeseries'][path]
+            vals = data['timeseries'][path.strip()]
             column_name = '_'.join(path.split('.')[:2])
             column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
