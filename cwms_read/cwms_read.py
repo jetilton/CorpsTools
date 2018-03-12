@@ -182,17 +182,19 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
+            flags = [val[2] for val in path_data]
             df= pd.DataFrame({'date': date, column_name: values})
+            flags = pd.DataFrame({'date': date, 'flag': flags})
+            flags = flags[flags['flag']>0].set_index('date')
             df['date'] = pd.to_datetime(df['date'])
             df.set_index('date', inplace = True)
-            freq = get_frequency(df.index)
-            if freq:
-                if 'D' in freq and set_day:
-                    df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
-                    df.index.name = 'date'
+            if 'D' in get_frequency(df.index) and set_day:
+                df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
+                df.index.name = 'date'
             df_list.append(df)
             vals.pop('values', None)
-            vals.update({'path':path, 'lat':lat,'long':long, 'tz_offset':tz_offset, 'timezone':tz})
+            vals.update({'path':path, 'lat':lat,'long':long, 
+                         'tz_offset':tz_offset, 'timezone':tz, 'flags': flags})
             meta.update({column_name:vals})
     
     df = pd.concat(df_list, axis = 1)
