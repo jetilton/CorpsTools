@@ -197,7 +197,8 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
                          'tz_offset':tz_offset, 'timezone':tz, 'flags': flags})
             meta.update({column_name:vals})
     
-    df = pd.concat(df_list, axis = 1)
+    if not df_list: return False
+    else: df = pd.concat(df_list, axis = 1)
     
     if fill:
         freq = get_frequency(df.index)
