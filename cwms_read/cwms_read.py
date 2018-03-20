@@ -87,7 +87,7 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
         time = 'backward=' + str(lookback) + 'd'
         url = url + time
     else:
-        url = url + 'startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+00%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+00%3A00'
+        url = url + 'startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+00%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+23%3A00'
         sy,sm,sd = start_date
         start_date = datetime(sy,sm,sd)
         ey,em,ed = end_date
