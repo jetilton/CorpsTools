@@ -5,7 +5,7 @@ import json
 import pandas as pd
 from datetime import datetime, timedelta
 import sys
-from numpy import median
+
 
 
 def fill_index(df, start_date, end_date, freq):
@@ -166,7 +166,6 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
             flags = flags[flags['flag']>0].set_index('date')
             df.set_index('date', inplace = True)
             freq = get_frequency(path)
-            
             if freq and 'D' in freq and set_day:
                 df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
                 df.index.name = 'date'
@@ -175,7 +174,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
                 end = df.dropna().index[-1]
                 start_date = (start.year, start.month, start.day)
                 end_date = (end.year, end.month, end.day)
-            df = df.pipe(fill_index, start_date, end_date, freq)
+                df = df.pipe(fill_index, start_date, end_date, freq)
             df_list.append(df)
             vals.pop('values', None)
             vals.update({'path':path, 'lat':lat,'long':long, 
