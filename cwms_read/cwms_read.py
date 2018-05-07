@@ -8,55 +8,27 @@ import sys
 from numpy import median
 
 
-def reindex(df, start_date, end_date, freq):
+def fill_index(df, start_date, end_date, freq):
     start = datetime(*start_date)
     end = datetime(*end_date)
     end = end.replace(hour = 23, minute = 0, second = 0)
     date = pd.date_range(start, end, freq = freq)
     date = [pd.Timestamp(x) for x in date]
-    if 'D' in freq:
-        index = df.index.copy()
-        index_hours = [x.hour for x in index]
-        m = median(index_hours)
-        def find_remainder(x):
-            return x%m
-        if sum([x%m for x in index_hours])>0:
-            return False
-        else:
-            date = [x.replace(hour = int(m)) for x in date] 
     df = df.reindex(date)
     df.index.rename('date', inplace = True)
     return df
 
-def get_frequency(index: pd.core.indexes.datetimes.DatetimeIndex)->str:
-    """
-    Args:
-        
-        index: a pd.core.indexes.datetimes.DatetimeIndex from a timeseries
-        
-    Returns:
-        
-        freq: a string value of either a daily, hourly, minutely, or secondly 
-              Offset Alias with the appropriate multiple.
-              This is not very robust, and returns False if it is not able to 
-              easily determine the frequency
-    """
-    seconds = index.to_series().diff().median().total_seconds()
-    minutes = seconds/60
-    hours = minutes/60
-    days = hours/24
-    if days>=1 and days%int(days) == 0:
-        freq = str(int(days))+'D'
-    elif hours>=1 and hours%int(hours) == 0:
-        freq = str(int(hours))+'H'
-    elif minutes>=1 and minutes%int(minutes) == 0:
-        freq = str(int(minutes))+'min'
-    elif seconds>=1 and seconds%int(seconds) == 0:
-        freq = str(int(seconds))+'S'
-    else: 
-        freq =  False
+
+def get_frequency(path: str)->str:
+    freq = path.split('.')[3]
+    if '~' in freq: return False
+    elif 'Hour' in freq:
+        freq = freq.split('Hour')[0] + 'H'
+    elif 'Day' in freq:
+        freq = freq.split('Day')[0] + 'D'
+    elif 'Min' in freq:
+        freq = freq.split('Min')[0] + 'min'
     return freq
-    
     
 def time_window_url(paths, public=True, lookback = 7, start_date = False, end_date = False, timezone = 'PST'):
     """
@@ -177,6 +149,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         tz_offset = data['tz_offset']
         tz = data['timezone']
         for path in path_list:
+            
             vals = data['timeseries'][path.strip()]
             column_name = '_'.join(path.split('.')[:2])
             column_name = '_'.join(column_name.split('-'))
@@ -192,10 +165,17 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
             flags = pd.DataFrame({'date': df['date'], 'flag': flags})
             flags = flags[flags['flag']>0].set_index('date')
             df.set_index('date', inplace = True)
-            freq = get_frequency(df.index)
+            freq = get_frequency(path)
+            
             if freq and 'D' in freq and set_day:
                 df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
                 df.index.name = 'date'
+            if freq and fill:
+                start = df.dropna().index[0]
+                end = df.dropna().index[-1]
+                start_date = (start.year, start.month, start.day)
+                end_date = (end.year, end.month, end.day)
+            df = df.pipe(fill_index, start_date, end_date, freq)
             df_list.append(df)
             vals.pop('values', None)
             vals.update({'path':path, 'lat':lat,'long':long, 
@@ -205,20 +185,6 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
     if not df_list: return False
     else: df = pd.concat(df_list, axis = 1)
     
-    if fill:
-        try:
-            freq = kwargs['freq']
-        except KeyError:
-            freq = get_frequency(df.index)
-        if not freq:
-            sys.stderr.write('Unable to determine frequency, returning data frame unfilled')
-        else:
-            if lookback:
-                end = datetime.now()
-                start = end - timedelta(days=lookback)
-                start_date = (start.year,start.month,start.day)
-                end_date = (end.year,end.month,end.day)
-            df = df.pipe(reindex, start_date, end_date, freq)
     df.__dict__['metadata'] = meta
     return df
     
