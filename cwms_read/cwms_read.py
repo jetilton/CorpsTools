@@ -175,6 +175,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
                 start_date = (start.year, start.month, start.day)
                 end_date = (end.year, end.month, end.day)
                 df = df.pipe(fill_index, start_date, end_date, freq)
+                df = df.asfreq(freq)
             df_list.append(df)
             vals.pop('values', None)
             vals.update({'path':path, 'lat':lat,'long':long, 
