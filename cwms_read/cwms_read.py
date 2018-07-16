@@ -75,7 +75,7 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
 
     
 
-def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
+def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True, **kwargs):
     
     """
     A function to parse CWMS json data from webservice into a pandas dataframe
@@ -135,6 +135,8 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
     meta = {}
     if not isinstance(paths, list):
         paths = [paths]
+    if col_names:
+         col_dict = {path:name for path, name in zip(paths, col_names)}
     site_dict = {}
     for path in paths:
         site = path.split('.')[0]
@@ -152,19 +154,19 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         long = data['coordinates']['longitude']
         tz_offset = data['tz_offset']
         tz = data['timezone']
+        
         for path in path_list:
             
             vals = data['timeseries'][path.strip()]
-            column_name = '_'.join(path.split('.')[:2])
-            column_name = '_'.join(column_name.split('-'))
             try:path_data = vals['values']
             except KeyError: 
                 sys.stderr.write('!No data for %s\n' % path)
+                paths = [x for x in paths if x != path]
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
             flags = [val[2] for val in path_data]
-            df= pd.DataFrame({'date': date, column_name: values})
+            df= pd.DataFrame({'date': date, path: values})
             df['date'] = pd.to_datetime(df['date'])
             flags = pd.DataFrame({'date': df['date'], 'flag': flags})
             flags = flags[flags['flag']>0].set_index('date')
@@ -185,13 +187,20 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
             vals.pop('values', None)
             vals.update({'path':path, 'lat':lat,'long':long, 
                          'tz_offset':tz_offset, 'timezone':tz, 'flags': flags})
-            meta.update({column_name:vals})
+            meta.update({path:vals})
     
     if not df_list: return False
     else: df = pd.concat(df_list, axis = 1)
     if len(set(freq_list)) == 1:
         df = df.asfreq(freq_list[0])
-    df.__dict__['metadata'] = meta
+    df =df[paths]
+    if col_names:
+        df.rename(columns = col_dict, inplace = True)
+        new_meta = {}
+        for path in col_dict.keys():
+            new_meta.update({col_dict[path]:meta[path]})
+        meta = new_meta
+    df.__dict__['metadata'] = meta   
     return df
     
 

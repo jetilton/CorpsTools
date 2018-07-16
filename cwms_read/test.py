@@ -30,7 +30,7 @@ class GetCwmsTest(unittest.TestCase):
         
         
         ]
-    
+    col_names=['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o']
     start_date = (2016, 5, 1)
     end_date = (2016, 7, 1)
     def test_public(self):
@@ -42,7 +42,12 @@ class GetCwmsTest(unittest.TestCase):
         data = get_cwms(self.paths, start_date = self.start_date, end_date = self.end_date, public = False, fill = True)
         self.assertTrue(isinstance(data, pd.DataFrame))
         
-        
+    def test_column_order(self):
+        data = get_cwms(self.paths, start_date = self.start_date, end_date = self.end_date, public = False, fill = True)
+        self.assertTrue(self.paths == list(data.columns))
+    def test_column_names(self):
+        data = get_cwms(self.paths,col_names=self.col_names, start_date = self.start_date, end_date = self.end_date, public = False, fill = True)
+        self.assertTrue(self.col_names == list(data.columns))
 
 if __name__ == '__main__':
     unittest.main()
