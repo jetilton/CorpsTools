@@ -125,7 +125,11 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
     try:timezone = kwargs['timezone']
     except: timezone = 'PST'
     url = time_window_url(paths,start_date=start_date, end_date=end_date, lookback = lookback, public=public,timezone = timezone)
-    r = requests.get(url)
+    if public:
+        r = requests.get(url)
+    else:
+        requests.packages.urllib3.disable_warnings() 
+        r = requests.get(url, verify = False)
     json_data = json.loads(r.text)
     df_list = []
     meta = {}
@@ -137,7 +141,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
         try: site_dict[site].append(path)
         except KeyError:
             site_dict.update({site:[path]})
-            
+    freq_list = []        
     for site,path_list in site_dict.items():
         try:
             data = json_data[site]
@@ -166,6 +170,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
             flags = flags[flags['flag']>0].set_index('date')
             df.set_index('date', inplace = True)
             freq = get_frequency(path)
+            freq_list.append(freq)
             if freq and 'D' in freq and set_day:
                 df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
                 df.index.name = 'date'
@@ -175,7 +180,7 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
                 start_date = (start.year, start.month, start.day)
                 end_date = (end.year, end.month, end.day)
                 df = df.pipe(fill_index, start_date, end_date, freq)
-                df = df.asfreq(freq)
+                
             df_list.append(df)
             vals.pop('values', None)
             vals.update({'path':path, 'lat':lat,'long':long, 
@@ -184,7 +189,8 @@ def get_cwms(paths, public = True, fill = True, set_day = True, **kwargs):
     
     if not df_list: return False
     else: df = pd.concat(df_list, axis = 1)
-    
+    if len(set(freq_list)) == 1:
+        df = df.asfreq(freq_list[0])
     df.__dict__['metadata'] = meta
     return df
     
