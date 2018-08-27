@@ -75,7 +75,7 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
 
     
 
-def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True, **kwargs):
+def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
     
     """
     A function to parse CWMS json data from webservice into a pandas dataframe
@@ -104,6 +104,8 @@ def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True
         timezone    --  "PST", "PDT", "MST", "MDT", "GMT"
         
         col_names   -- Optional list for df column names
+        
+        set_day     -- Boolean, True sets day 
                         
                         
     Returns:
@@ -175,9 +177,9 @@ def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True
             df.set_index('date', inplace = True)
             freq = get_frequency(path)
             freq_list.append(freq)
-            if freq and 'D' in freq and set_day:
-                df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
-                df.index.name = 'date'
+#            if freq and 'D' in freq and set_day:
+#                df.index = [x.replace(hour = 0, minute = 0, second = 0) for x in df.index]
+#                df.index.name = 'date'
             if freq and fill:
                 start = df.dropna().index[0]
                 end = df.dropna().index[-1]
