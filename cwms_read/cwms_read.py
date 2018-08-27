@@ -194,7 +194,10 @@ def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True
     if not df_list: return False
     else: df = pd.concat(df_list, axis = 1)
     if len(set(freq_list)) == 1:
-        df = df.asfreq(freq_list[0])
+        try:
+            df = df.asfreq(freq_list[0])
+        except ValueError:
+            pass
     df =df[paths]
     if col_names:
         df.rename(columns = col_dict, inplace = True)
