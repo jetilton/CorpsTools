@@ -102,6 +102,8 @@ def get_cwms(paths, col_names = None, public = True, fill = True, set_day = True
                         example: (2017, 3, 22)
         
         timezone    --  "PST", "PDT", "MST", "MDT", "GMT"
+        
+        col_names   -- Optional list for df column names
                         
                         
     Returns:
