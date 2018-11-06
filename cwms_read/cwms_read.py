@@ -23,12 +23,12 @@ def get_frequency(path: str)->str:
     freq = path.split('.')[3]
     if '~' in freq: return False
     elif 'Hour' in freq:
-        freq = freq.split('Hour')[0] + 'H'
+        return freq.split('Hour')[0] + 'H'
     elif 'Day' in freq:
-        freq = freq.split('Day')[0] + 'D'
+        return freq.split('Day')[0] + 'D'
     elif 'Min' in freq:
-        freq = freq.split('Min')[0] + 'min'
-    return freq
+        return freq.split('Min')[0] + 'min'
+    return False
     
 def time_window_url(paths, public=True, lookback = 7, start_date = False, end_date = False, timezone = 'PST'):
     """
