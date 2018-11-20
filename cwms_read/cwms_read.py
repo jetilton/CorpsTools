@@ -160,9 +160,9 @@ def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
         tz = data['timezone']
         
         for path in path_list:
-            
-            vals = data['timeseries'][path.strip()]
-            try:path_data = vals['values']
+            try:
+                vals = data['timeseries'][path.strip()]
+                path_data = vals['values']
             except KeyError: 
                 sys.stderr.write('!No data for %s\n' % path)
                 paths = [x for x in paths if x != path]
