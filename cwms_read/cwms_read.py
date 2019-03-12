@@ -166,6 +166,7 @@ def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
             except KeyError: 
                 sys.stderr.write('!No data for %s\n' % path)
                 paths = [x for x in paths if x != path]
+                col_dict.pop(path)
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
