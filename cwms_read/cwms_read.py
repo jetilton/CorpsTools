@@ -65,12 +65,12 @@ def time_window_url(paths, public=True, lookback = 7, start_date = False, end_da
     else:
         url = url + 'startdate=START_MONTH%2FSTART_DAY%2FSTART_YEAR+00%3A00&enddate=END_MONTH%2FEND_DAY%2FEND_YEAR+23%3A00'
         sy,sm,sd = start_date
-        start_date = datetime(sy,sm,sd)
+        start_date = datetime(int(sy),int(sm),int(sd))
         ey,em,ed = end_date
-        end_date = datetime(ey,em,ed)
+        end_date = datetime(int(ey),int(em),int(ed))
         url = url.replace('START_MONTH', str(start_date.month)).replace('START_DAY', str(start_date.day)).replace('START_YEAR', str(start_date.year))
         url = url.replace('END_MONTH', str(end_date.month)).replace('END_DAY', str(end_date.day)).replace('END_YEAR', str(end_date.year))
-    
+
     return url
 
     
@@ -141,6 +141,8 @@ def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
         paths = [paths]
     if col_names:
          col_dict = {path:name for path, name in zip(paths, col_names)}
+    else:
+        col_dict = {}
     site_dict = {}
     for path in paths:
         site = path.split('.')[0]
@@ -166,7 +168,8 @@ def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
             except KeyError: 
                 sys.stderr.write('!No data for %s\n' % path)
                 paths = [x for x in paths if x != path]
-                col_dict.pop(path)
+                if col_dict:
+                    col_dict.pop(path)
                 continue
             date = [val[0] for val in path_data]
             values = [val[1] for val in path_data]
@@ -194,7 +197,7 @@ def get_cwms(paths, col_names = None, public = True, fill = True, **kwargs):
                          'tz_offset':tz_offset, 'timezone':tz, 'flags': flags})
             meta.update({path:vals})
     
-    if not df_list: return False
+    if not df_list: return pd.DataFrame() 
     else: df = pd.concat(df_list, axis = 1)
     if len(set(freq_list)) == 1:
         try:
