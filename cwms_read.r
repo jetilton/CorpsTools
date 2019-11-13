@@ -68,7 +68,7 @@ cwms_data_parse = function(data, column){
 
 
 cwms_to_dt = function(path, start_date, end_date, timezone = 'PST'){
-  url = time_window_url(path, start_date, end_date, timezone = 'PST')
+  url = time_window_url(path, start_date, end_date, timezone = timezone)
   data = rjson::fromJSON(file=url)
   paste(paste('`',path,sep=''),'`',sep='')
   x = data[[1]]$timeseries[[1]]$values
